@@ -10,7 +10,7 @@ def template_matching(screenshot, template):
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
     strmin_val = str(min_val)
     print("匹配度：" + strmin_val)
-    # cv2.rectangle(screenshot, min_loc, (min_loc[0] + w, min_loc[1] + h), (0, 0, 255))
+    cv2.rectangle(screenshot, min_loc, (min_loc[0] + w, min_loc[1] + h), (0, 0, 255))
     pos = (min_loc[0] + w / 2, min_loc[1] + h / 2)
     print(pos)
 
@@ -22,14 +22,33 @@ def template_matching(screenshot, template):
 
 def find_enemy(screenshot):
     pos, val = template_matching(screenshot, 'boss.png')
-    if val > 0.2:
-        pos, val = template_matching(screenshot, 'mid-air.png')
-        if val > 0.06:
-            pos, val = template_matching(screenshot, 'mid-defense.png')
-            if val > 0.15:
-                pos, val = template_matching(screenshot, 'mid-main.png')
+    if val < 0.2:
+        print('boss')
+        return pos
+    pos, val = find_specialenemy(screenshot)
+    if val < 0.2:
+        print('specialEnemy')
+        return pos
+    pos, val = template_matching(screenshot, 'mid-air.png')
+    if val < 0.06:
+        print('mid-air')
+        return pos
+    pos, val = template_matching(screenshot, 'mid-defense.png')
+    if val < 0.15:
+        print('mid-defense')
+        return pos
+    pos, val = template_matching(screenshot, 'mid-main.png')
+    print('mid-main')
     return pos
 
+def find_specialenemy(screenshot):
+    pos, val = template_matching(screenshot,'specialEnemy1.jpg')
+    if val < 0.2:
+        pos = pos[0],pos[1]+30
+        return pos, val
+    pos, val = template_matching(screenshot, 'specialEnemy2.jpg')
+    pos = pos[0],pos[1]+30
+    return pos, val
 
 def attack(screenshot):
     pos, val = template_matching(screenshot, 'attack.png')
@@ -63,3 +82,19 @@ def find_stage(screenshot, stage):
 
 def go(screenshot):
     return template_matching(screenshot, 'go.png')
+
+def find_page(screenshot, image):
+    pos, val = template_matching(screenshot,image)
+    if val < 0.1:
+        return True
+    else:
+        return False
+
+def find_ship(screenshot, team_leader):
+    pos, val = template_matching(screenshot,team_leader+'.jpg')
+    pos = pos[0],pos[1]+60
+    return pos, val
+
+def find_mapbottomedge(screenshot):
+    pos, val = template_matching(screenshot,'bottomedge.jpg')
+    return pos

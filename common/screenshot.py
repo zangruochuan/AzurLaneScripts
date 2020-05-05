@@ -21,6 +21,9 @@ adb = auto_adb()
 # SCREENSHOT_WAY 是截图方法，经过 check_screenshot 后，会自动递减，不需手动修改
 SCREENSHOT_WAY = 3
 
+def pull_screenshot2CV():
+    im = pull_screenshot()
+    return Image2OpenCV(im)
 
 def pull_screenshot():
     """

@@ -4,16 +4,16 @@ import subprocess
 import platform
 
 
-class auto_adb():
+class auto_adb:
     def __init__(self):
         try:
-            adb_path = 'adb'
+            adb_path = 'adb\\platform-tools\\adb.exe'
             subprocess.Popen([adb_path], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
             self.adb_path = adb_path
         except OSError:
             if platform.system() == 'Windows':
-                adb_path = os.path.join('Tools', "adb", 'adb.exe')
+                adb_path = os.path.join('adb', "platform-tools", 'adb.exe')
                 try:
                     subprocess.Popen(
                         [adb_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -50,7 +50,8 @@ class auto_adb():
     def test_device(self):
         print('检查设备是否连接...')
         command_list = [self.adb_path, 'devices']
-        process = subprocess.Popen(command_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(
+            command_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = process.communicate()
         if output[0].decode('utf8') == 'List of devices attached\n\n':
             print('未找到设备')
@@ -74,9 +75,26 @@ class auto_adb():
         return output
 
     def test_device_os(self):
-        process = os.popen(self.adb_path + ' shell getprop ro.build.version.release')
+        process = os.popen(
+            self.adb_path + ' shell getprop ro.build.version.release')
         output = process.read()
         return output
 
     def adb_path(self):
         return self.adb_path
+
+    def tap_scale(self, pos, scale):
+        scaled_pos = int(pos[0] * scale[0]), int(pos[1] * scale[1])
+        print(scaled_pos)
+        self.run('shell input tap {} {}'.format(scaled_pos[0], scaled_pos[1]))
+        return scaled_pos
+
+    def swipe_scale(self, pos, scale):
+        scaled_mid = int(960/2*scale[0]), int(443/2*scale[1])
+        scaled_pos = int(pos[0]*scale[0]), int(pos[1]*scale[1])
+        print(scaled_pos)
+        print(
+            f'shell input swipe {scaled_mid[0]} {scaled_mid[1]} {scaled_mid[0]+scaled_pos[0]} {scaled_mid[1]+scaled_pos[1]} {1000}')
+        self.run(
+            f'shell input swipe {scaled_mid[0]} {scaled_mid[1]} {scaled_mid[0]+scaled_pos[0]} {scaled_mid[1]+scaled_pos[1]} {1000}')
+

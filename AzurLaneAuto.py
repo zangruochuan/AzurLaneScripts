@@ -152,6 +152,7 @@ def main2():
                 pos, val = Moving.attack(im)
                 # 出击
                 adb.tap_scale(pos, scale)
+
             val = 1
             while val > 0.06:
                 print("判断是否战斗结束，若未能进入战斗状态，请手动进入战斗")
@@ -205,6 +206,18 @@ def adjust_page(scale):
     pos = Moving.find_mapbottomedge(im)
     pos = -int(pos[0]), 443-int(pos[1])
     adb.swipe_scale(pos, scale)
+
+
+def is_harborfull(scale):
+    im = screenshot.pull_screenshot2CV()
+    if Moving.is_harborfull(im):
+        pos, val = Moving.sortout(im)
+        adb.tap_scale(pos,scale)
+        im = screenshot.pull_screenshot2CV()
+        pos, val = Moving.onekey_retire(im)
+        adb.tap_scale(pos,scale)
+        time.sleep()
+        # pos, val = 
 
 
 if __name__ == '__main__':

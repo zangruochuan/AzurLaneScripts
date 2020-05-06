@@ -11,6 +11,7 @@ from PIL import Image
 import Moving
 from common.auto_adb import auto_adb
 from AzurLaneAuto import adjust_page
+from common.template_matching import template_matching
 
 if sys.version_info.major != 3:
     print('请使用python3.x版本')
@@ -27,16 +28,21 @@ class TestAzurLaneAuto(unittest.TestCase):
 
     def test_device(self):
         try:
-            adb = auto_adb()
             adb.test_device()
             self.assertTrue()
         except Exception as e:
             print(e)
 
+    def test_screenshot(self):
+        screenshot.check_screenshot()
+        im = screenshot.pull_screenshot2CV()
+        cv2.imshow("match", im)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+
     def test_findStage(self):
         screenshot.check_screenshot()
-        im = screenshot.pull_screenshot()
-        im = screenshot.Image2OpenCV(im)
+        im = screenshot.pull_screenshot2CV()
         Moving.find_stage(im, 'C1')
 
     def test_getClickPos(self):
@@ -50,43 +56,38 @@ class TestAzurLaneAuto(unittest.TestCase):
         cv2.destroyAllWindows()
         pos = -int(pos[0]),443-int(pos[1])
 
-        # adb = auto_adb()
-        # x, y = adb.get_size()
-        # if x < y:
-        #     x, y = y, x
-        # scale = (x / 960, y / 443)
-        # # tap_scale(pos,scale,adb)
-        # swipe_scale(pos, scale, adb)
+        adb.tap_scale(pos,scale,adb)
+        adb.swipe_scale(pos, scale, adb)
 
     def test_device_drag(self):
-        adb = auto_adb()
         x, y = adb.get_size()
         if x < y:
             x, y = y, x
         scale = (x / 960, y / 443)
         pos = -1000, 500
-        swipe_scale(pos, scale, adb)
+        adb.swipe_scale(pos, scale, adb)
 
+    def test_getTextFromImage(self):
+        im = cv2.imdecode(numpy.fromfile('resource/image/mid-way-2.jpg',numpy.uint8),cv2.IMREAD_COLOR)
+        cv2.imshow('image1',im)
+
+        hsv = cv2.cvtColor(im,cv2.COLOR_BGR2HSV)
+        cv2.imshow("match",hsv)
+        im = cv2.inRange(im,numpy.array([200,200,200]),numpy.array([255,255,255]))
+        cv2.imshow('image',im)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+
+    def test_getarea(self):
+        shot = cv2.imdecode(numpy.fromfile('resource/image/mid-way-2.jpg',numpy.uint8),cv2.IMREAD_COLOR)
+        template = cv2.imdecode(numpy.fromfile('resource/image/迎击.jpg',numpy.uint8),cv2.IMREAD_COLOR)
+        template_matching(shot,template)
 
 def onmouse(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         print(x, y)
 
 
-def tap_scale(pos, scale, adb):
-    scaled_pos = int(pos[0] * scale[0]), int(pos[1] * scale[1])
-    print(scaled_pos)
-    adb.run('shell input tap {} {}'.format(scaled_pos[0], scaled_pos[1]))
-    return scaled_pos
-
-
-def swipe_scale(pos, scale, adb):
-    scaled_pos = int(960/2*scale[0]), int(443/2*scale[1])
-    print(scaled_pos)
-    print(
-        f'shell input swipe {scaled_pos[0]} {scaled_pos[1]} {scaled_pos[0]+pos[0]} {scaled_pos[1]+pos[1]} {1000}')
-    adb.run(
-        f'shell input swipe {scaled_pos[0]} {scaled_pos[1]} {scaled_pos[0]+pos[0]} {scaled_pos[1]+pos[1]} {1000}')
 
 # image_path = 'resource/image/'
 

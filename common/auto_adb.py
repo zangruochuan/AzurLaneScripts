@@ -5,6 +5,8 @@ import platform
 
 
 class auto_adb:
+    scale = 1,1
+
     def __init__(self):
         try:
             adb_path = 'adb\\platform-tools\\adb.exe'
@@ -63,6 +65,13 @@ class auto_adb:
         print('adb 输出:')
         for each in output:
             print(each.decode('utf8'))
+
+    def init_scale(self):
+        screenwidth, screenheight = self.get_size()
+        if screenwidth < screenheight:
+            screenwidth, screenheight = screenheight, screenwidth
+            scale = (screenwidth / 960, screenheight / 443)
+
 
     def test_density(self):
         process = os.popen(self.adb_path + ' shell wm density')

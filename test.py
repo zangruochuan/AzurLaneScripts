@@ -33,6 +33,11 @@ class TestAzurLaneAuto(unittest.TestCase):
         except Exception as e:
             print(e)
 
+    def test_screenshot(self):
+        screenshot.check_screenshot()
+        im = screenshot.pull_screenshot2CV()
+        print(im)
+
     def test_findStage(self):
         screenshot.check_screenshot()
         im = screenshot.pull_screenshot()

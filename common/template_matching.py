@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import cv2
+import numpy
 
 def template_matching(screenshot, template):
     # image_path = 'resource/image/'
@@ -14,7 +15,18 @@ def template_matching(screenshot, template):
     pos = (min_loc[0] + w / 2, min_loc[1] + h / 2)
     print(pos)
 
-    cv2.imshow("match", screenshot)
+    # if min_val <0.2:
+    #     cv2.imshow("match", screenshot)
+    #     cv2.waitKey()
+    #     cv2.destroyAllWindows()
+    return pos, min_val
+
+def image_reader(fileName):
+    im = cv2.imdecode(numpy.fromfile(
+            f'resource/image/{fileName}.jpg', numpy.uint8), cv2.IMREAD_COLOR)
+    return im
+
+def image_show(image):
+    cv2.imshow("match", image)
     cv2.waitKey()
     cv2.destroyAllWindows()
-    return pos, min_val

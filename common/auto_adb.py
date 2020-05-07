@@ -13,6 +13,7 @@ class auto_adb:
             subprocess.Popen([adb_path], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
             self.adb_path = adb_path
+            self.init_scale()
         except OSError:
             if platform.system() == 'Windows':
                 adb_path = os.path.join('adb', "platform-tools", 'adb.exe')
@@ -92,18 +93,22 @@ class auto_adb:
     def adb_path(self):
         return self.adb_path
 
-    def tap_scale(self, pos, scale):
+    def tap_scale(self, pos):
+        scale = self.scale
         scaled_pos = int(pos[0] * scale[0]), int(pos[1] * scale[1])
         print(scaled_pos)
         self.run('shell input tap {} {}'.format(scaled_pos[0], scaled_pos[1]))
-        return scaled_pos
 
-    def swipe_scale(self, pos, scale):
+    def swipe_scale(self, pos):
+        scale = self.scale
         scaled_mid = int(960/2*scale[0]), int(443/2*scale[1])
         scaled_pos = int(pos[0]*scale[0]), int(pos[1]*scale[1])
         print(scaled_pos)
-        print(
-            f'shell input swipe {scaled_mid[0]} {scaled_mid[1]} {scaled_mid[0]+scaled_pos[0]} {scaled_mid[1]+scaled_pos[1]} {1000}')
-        self.run(
-            f'shell input swipe {scaled_mid[0]} {scaled_mid[1]} {scaled_mid[0]+scaled_pos[0]} {scaled_mid[1]+scaled_pos[1]} {1000}')
+        # print(f'shell input swipe {scaled_mid[0]} {scaled_mid[1]} {scaled_mid[0]+scaled_pos[0]} {scaled_mid[1]+scaled_pos[1]} {1000}')
+        self.run(f'shell input swipe {scaled_mid[0]} {scaled_mid[1]} {scaled_mid[0]+scaled_pos[0]} {scaled_mid[1]+scaled_pos[1]} {1000}')
 
+    def init_scale(self):
+        screenwidth, screenheight = self.get_size()
+        if screenwidth < screenheight:
+            screenwidth, screenheight = screenheight, screenwidth
+            self.scale = (screenwidth / 960, screenheight / 443)
